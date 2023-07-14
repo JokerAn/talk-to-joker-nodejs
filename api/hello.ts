@@ -16,15 +16,7 @@ const myEnv= {
 }
 const pinecone = new PineconeClient();
 await pinecone.init(myEnv.pinecone);
-// 添加CORS中间件
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*'); // 允许所有源
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  next();
-});
-const processDocuments = async (docs, fileName) => {
-  // console.log(fileName)
+export default function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const index = pinecone.Index("pdf"); //change to your own index name
     const embeddings = new OpenAIEmbeddings(myEnv.openai);
@@ -39,46 +31,4 @@ const processDocuments = async (docs, fileName) => {
     console.log('error', error);
     throw new Error('Failed to ingest your data');
   }
-};
-// 上传文件
-app.post('/upload', multer().single('file'), async (req, res, err) => {
-  try {
-    if (err) {
-      console.log(err);
-    }
-    console.log(req.body.fileName)
-  
-  } catch (error) {
-    res.send({ code: -1, data:null,error });
-  }
-});
-export default function handler(req: VercelRequest, res: VercelResponse) {
-  let a=multer().single('file');
-  a(req,res,(err)=>{
-
-    // 解析PDF文件
-    const pdfData = await pdf(req.file.buffer);
-    console.log('pdfData--', pdfData);
-  
-    const doc = {
-      metadata: {
-        source: 'blob', // Set the source of the document to the file name
-        ...pdfData.metadata
-      },
-      text: pdfData.text, // Read the file content as text
-    };
-  
-    const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 1000,
-      chunkOverlap: 200,
-    });
-  
-    const docs = await textSplitter.splitDocuments([
-      new Document({ pageContent: pdfData.text }),
-    ]);
-  
-    // console.log('docs--', docs);
-    await processDocuments(docs,req.body.fileName);
-    res.send({ code: 200, indexNames });
-  })
 }
