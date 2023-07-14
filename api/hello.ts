@@ -1,10 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import multer from 'multer';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
-import pdf from 'pdf-parse/lib/pdf-parse.js'
-
-import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
-import { Document } from "langchain/document";
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { PineconeClient } from '@pinecone-database/pinecone';
 
