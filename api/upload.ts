@@ -14,9 +14,9 @@ const myEnv= {
 const pinecone = new PineconeClient();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  await pinecone.init(myEnv.pinecone);
-  await multer().single('file')(req, res); // 处理文件上传
+  // await pinecone.init(myEnv.pinecone);
+  // await multer().single('file')(req, res); // 处理文件上传
     const { fileName } = req.body;
     const pdfData = await pdf(req.file.buffer);
-    res.status(200).json({ code: 200, fileName,pdfData });
+    res.status(200).json({ code: 200, fileName });
 }
