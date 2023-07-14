@@ -11,7 +11,7 @@ const myEnv= {
 }
 const pinecone = new PineconeClient();
 
-export default function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   await pinecone.init(myEnv.pinecone);
   try {
     const index = pinecone.Index("pdf"); //change to your own index name
