@@ -10,8 +10,9 @@ const myEnv= {
   },
 }
 const pinecone = new PineconeClient();
-await pinecone.init(myEnv.pinecone);
+
 export default function handler(req: VercelRequest, res: VercelResponse) {
+  await pinecone.init(myEnv.pinecone);
   try {
     const index = pinecone.Index("pdf"); //change to your own index name
     const embeddings = new OpenAIEmbeddings(myEnv.openai);
