@@ -1,6 +1,7 @@
 import formidable from 'formidable-serverless';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import pdf from 'pdf-parse/lib/pdf-parse.js'
+import cors from 'cors';
 
 import { Document } from "langchain/document";
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
@@ -12,7 +13,7 @@ export const config = {
 	  externalResolver: true,
 	},
   }
-
+let myEnv:any={};
 const processDocuments = async (docs, fileName,index) => {
 	// console.log(fileName)
 	try {
@@ -28,7 +29,7 @@ const processDocuments = async (docs, fileName,index) => {
 		console.log('error', error);
 	}
 };
-function getUrlParamsFor(url = "", name: string) {
+function getUrlParamsFor(url = "", name?: string) {
   const queryParams: any = url.split("?")[1] || [];
   let finallyData: any = {};
   var vars = queryParams.length > 0 ? queryParams.split("&") : [];
@@ -41,8 +42,19 @@ function getUrlParamsFor(url = "", name: string) {
   }
   return finallyData;
 }
-export default async(req, res) => {
-  
+export default async(req, res,next) => {
+	await new Promise((resolve, reject) => {
+    cors()(req, res, (err) => {
+      if (err) {
+				console.log('cors error',err)
+        reject(err);
+      } else {
+        resolve(req);
+      }
+    });
+  });
+	let paramss:any=getUrlParamsFor(req.url);
+  console.log(paramss)
 	let fileName: string = getUrlParamsFor(req.url, "fileName");
 	let openAIApiKey: string = getUrlParamsFor(req.url, "openAIApiKey");
 	let pineconeApiKey: string = getUrlParamsFor(req.url, "pineconeApiKey");
@@ -51,7 +63,7 @@ export default async(req, res) => {
     res.send({ code: -1, data: [], error: "fileName\openAIApiKey\pineconeApiKey\pineconeEnvironment is required" });
     return;
   }
-  const myEnv = {
+  myEnv = {
     pinecone: {
       environment: pineconeEnvironment,
       apiKey: pineconeApiKey
@@ -60,7 +72,8 @@ export default async(req, res) => {
       openAIApiKey: openAIApiKey
     }
   }
-	console.log(req.query)
+	console.log('myEnv',myEnv)
+	console.log('req.query')
 	const pinecone = new PineconeClient();
 	await pinecone.init(myEnv.pinecone);
 	const index = await pinecone.Index("pdf");
