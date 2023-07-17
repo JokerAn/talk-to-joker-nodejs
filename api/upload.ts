@@ -1,27 +1,39 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { PineconeClient } from '@pinecone-database/pinecone';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
-import { PineconeClient } from '@pinecone-database/pinecone';
-import pdf from 'pdf-parse/lib/pdf-parse.js'
 import multer from 'multer';
+import { VercelRequest, VercelResponse } from '@vercel/node';
 
-const myEnv= {
-  pinecone:{
-    environment: 'us-west4-gcp-free', 
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).single("avatar");
+
+const myEnv = {
+  pinecone: {
+    environment: 'us-west4-gcp-free',
     apiKey: '6df035c5-7ede-4f2e-8a03-07e215c033c6'
-  },
-}
+  }
+};
+
 const pinecone = new PineconeClient();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // await pinecone.init(myEnv.pinecone);
-  // await multer().single('file')(req, res); // 处理文件上传
   try {
-    const { fileName } = req.body;
-    // const pdfData = await pdf(req.file.buffer);
-    res.status(200).json({ code: 200, fileName });
-  } catch (error) {
-    res.status(200).json({ code: -1, req,res });
+    await new Promise((resolve, reject) => {
+      upload(req, res, function (err) {
+        if (err) {
+          console.log(err);
+          // Handle error during file upload
+          return reject(err);
+        } else {
+          // Access the uploaded file using req.file
+          const file = req['file'];
+          res.status(200).json({ success: true, data: file });
+          resolve(1);
+        }
+      });
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ success: false });
   }
-   
 }
