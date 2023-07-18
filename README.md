@@ -29,3 +29,8 @@ Then run the app at the root of the repository:
 ```bash
 vercel dev
 ```
+
+OPENAI_API_KEY=sk-123
+CODE=123,234
+PINECONE_ENVIRONMENT=123
+PINECONE_API_KEY=1233
