@@ -48,7 +48,8 @@ export default async function handler(req: any, res: any) {
   };
   await pinecone.init(myEnv.pinecone);
   try {
-    const index = pinecone.Index("pdf");
+    const index = await pinecone.Index(env.INDEX_NAME);
+
     const indexStats: any = await index.describeIndexStats({
       describeIndexStatsRequest: {
         filter: {},
