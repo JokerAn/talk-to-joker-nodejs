@@ -77,7 +77,7 @@ export default async (req, res, next) => {
   // console.log("req.query");
   const pinecone = new PineconeClient();
   await pinecone.init(myEnv.pinecone);
-  const index = await pinecone.Index(env.INDEX_NAME);
+  const index = await pinecone.Index(env.PINECONE_INDEX_NAME);
   const form = new formidable.IncomingForm();
   form.keepExtensions = true;
 
